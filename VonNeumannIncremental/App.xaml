@@ -1,9 +1,13 @@
 ﻿<Application x:Class="VonNeumannIncremental.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:VonNeumannIncremental"
-             StartupUri="MainWindow.xaml">
+             xmlns:st1="clr-namespace:VonNeumannIncremental.Stages.Stage1"
+             Startup="Application_Startup">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <DataTemplate DataType="{x:Type st1:Stage1ViewModel}">
+                <st1:Stage1View/>
+            </DataTemplate>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>
