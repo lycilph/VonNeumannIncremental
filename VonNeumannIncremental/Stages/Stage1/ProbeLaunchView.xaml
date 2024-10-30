@@ -1,0 +1,20 @@
+﻿<UserControl x:Class="VonNeumannIncremental.Stages.Stage1.ProbeLaunchView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:VonNeumannIncremental.Stages.Stage1"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <StackPanel>
+
+        <!--<TextBlock Text="Probe parts"/>
+        <ProgressBar Height="5" Margin="0,10,0,0" Maximum="{Binding PartsToComplete}" Value="{Binding Parts}"/>
+        <Button Content="Print probe part" 
+            HorizontalAlignment="Center" 
+            Margin="0,20,0,0"
+            Command="{Binding PrintPartCommand}"/>
+        <TextBlock Text="Working" Margin="0,20,0,0"/>
+        <ProgressBar Height="5" Margin="0,10,0,0" Maximum="{Binding TicksToComplete}" Value="{Binding WorkingTicks}"/>-->
+    </StackPanel>
+</UserControl>

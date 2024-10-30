@@ -1,37 +1,65 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using NLog;
+using System.Collections.ObjectModel;
 using VonNeumannIncremental.Core;
 using VonNeumannIncremental.Stages.Common;
 
 namespace VonNeumannIncremental.Stages.Stage1;
 
-public partial class Stage1ViewModel(Game game) : ObservableObject, IViewModel
+public partial class Stage1ViewModel(Game game) : ViewModelBase(game)
 {
     private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
-    public Game Game { get; private set; } = game;
+    [ObservableProperty]
+    private IViewModel? currentSection;
 
     [ObservableProperty]
-    public int _ticks;
+    private ObservableCollection<string> messages = [];
 
-    public void Reset()
+    public void Next()
     {
+        if (CurrentSection is PartsConstructionViewModel)
+        {
+            var section = new ProbeAssemblyViewModel(Game, this);
+            section.Reset();
+
+            CurrentSection = section;
+        }
+        else
+            CurrentSection = null;
     }
 
-    public void Start()
+    public override void Reset()
+    {
+        var section = new PartsConstructionViewModel(Game, this);
+        section.Reset();
+
+        CurrentSection = section;
+    }
+
+    public override void Start()
     {
         logger.Debug("Stage 1 - started");
-        Game.GameTimer.Tick += GameTimerTick;
+
+        Messages.Add("Stage 1 - started");
     }
 
-    public void Stop()
+    public override void Stop()
     {
         logger.Debug("Stage 1 - stopped");
-        Game.GameTimer.Tick -= GameTimerTick;
     }
 
-    private void GameTimerTick(object? sender, EventArgs e)
+    partial void OnCurrentSectionChanging(IViewModel? oldValue, IViewModel? newValue)
     {
-        Ticks = Game.Ticks * 10;
+        logger.Debug("Changing section from {from} to {to}", oldValue?.GetType().Name, newValue?.GetType().Name);
+
+        if (oldValue is not null)
+            oldValue.Stop();
+    }
+
+    partial void OnCurrentSectionChanged(IViewModel? value)
+    {
+        if (value is not null)
+            value.Start();
     }
 }

@@ -8,6 +8,14 @@
             <DataTemplate DataType="{x:Type st1:Stage1ViewModel}">
                 <st1:Stage1View/>
             </DataTemplate>
+
+            <DataTemplate DataType="{x:Type st1:PartsConstructionViewModel}">
+                <st1:PartsConstructionView/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type st1:ProbeAssemblyViewModel}">
+                <st1:ProbeAssemblyView/>
+            </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

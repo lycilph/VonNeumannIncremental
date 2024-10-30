@@ -1,20 +1,23 @@
 ﻿using System.Windows.Threading;
+using VonNeumannIncremental.Stages.Stage1;
 
 namespace VonNeumannIncremental.Core;
 
 public class Game
 {
-    public DispatcherTimer GameTimer { get; private set; }
+    public List<Type> Stages { get; private set; } = [typeof(Stage1ViewModel)];
+
+    public DispatcherTimer Timer { get; private set; }
 
     public int Ticks { get; set; }
-    public int CurrentStage { get; set; } = 1;
+    public int CurrentStage { get; set; } = 0;
 
     public Game()
     {
-        GameTimer = new DispatcherTimer();
-        GameTimer.Interval = TimeSpan.FromMilliseconds(250);
-        GameTimer.Tick += GameTick;
-        GameTimer.Start();
+        Timer = new DispatcherTimer();
+        Timer.Interval = TimeSpan.FromMilliseconds(250);
+        Timer.Tick += GameTick;
+        Timer.Start();
     }
 
     private void GameTick(object? sender, EventArgs e)

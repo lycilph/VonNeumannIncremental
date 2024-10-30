@@ -1,30 +1,34 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+using NLog;
 using VonNeumannIncremental.Core;
 using VonNeumannIncremental.Stages.Common;
-using VonNeumannIncremental.Stages.Stage1;
 
 namespace VonNeumannIncremental;
 
 public partial class MainWindowViewModel(Game game) : ObservableObject, IViewModel
 {
+    private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+
     public Game Game { get; private set; } = game;
 
     [ObservableProperty]
-    public IViewModel? _currentStage;
+    private IViewModel? currentStage;
 
     [ObservableProperty]
-    public int _ticks;
+    private int ticks;
 
     public void Reset()
     {
-        CurrentStage = new Stage1ViewModel(Game);
-        CurrentStage.Reset();
+        var stageType = Game.Stages[Game.CurrentStage];
+        var Stage = Activator.CreateInstance(stageType, Game) as IViewModel;
+        Stage?.Reset();
+
+        CurrentStage = Stage;
     }
 
     public void Start() 
     {
-        Game.GameTimer.Tick += GameTimerTick;
+        Game.Timer.Tick += GameTimerTick;
     }
 
     public void Stop() 
@@ -38,6 +42,8 @@ public partial class MainWindowViewModel(Game game) : ObservableObject, IViewMod
 
     partial void OnCurrentStageChanging(IViewModel? oldValue, IViewModel? newValue)
     {
+        logger.Debug("Changing stage from {from_stage} to {to_stage}", oldValue?.GetType().Name, newValue?.GetType().Name);
+
         if (oldValue is not null)
             oldValue.Stop();
     }
@@ -46,11 +52,5 @@ public partial class MainWindowViewModel(Game game) : ObservableObject, IViewMod
     {
         if (value is not null)
             value.Start();
-    }
-
-    [RelayCommand]
-    private void StopTimer()
-    {
-        CurrentStage?.Stop();
     }
 }

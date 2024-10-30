@@ -19,4 +19,10 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Stages\Stage4\" />
+    <Folder Include="Stages\Stage3\" />
+    <Folder Include="Stages\Stage2\" />
+  </ItemGroup>
+
 </Project>
