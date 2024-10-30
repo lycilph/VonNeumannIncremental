@@ -6,26 +6,28 @@ using VonNeumannIncremental.Stages.Common;
 
 namespace VonNeumannIncremental.Stages.Stage1;
 
-public partial class ProbeAssemblyViewModel(Game game, Stage1ViewModel vm) : ViewModelBase(game)
+public partial class ProbeAssemblyViewModel(Game game, Stage1ViewModel stage1) : ViewModelBase(game)
 {
     private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-
-    protected Stage1ViewModel Stage1ViewModel { get; private set; } = vm;
 
     [ObservableProperty]
     private int workingTicks = 0;
 
     [ObservableProperty]
-    private int ticksToComplete = 2;
+    private int workIncrement = 25;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(AssembleProbeCommand))]
     private bool isWorking = false;
 
+    private Task? finishingTask = null;
+
     public override void Start()
     {
         logger.Debug("Stage 1 - Probe assembly section - started");
+
         Game.Timer.Tick += GameTimerTick;
+        finishingTask = null;
     }
 
     public override void Stop()
@@ -38,13 +40,18 @@ public partial class ProbeAssemblyViewModel(Game game, Stage1ViewModel vm) : Vie
     {
         if (IsWorking)
         {
-            WorkingTicks += 5;
+            if (WorkingTicks < 100)
+                WorkingTicks += WorkIncrement;
 
-            if (WorkingTicks >= 100)
+            // Target is always 100 since it is a percentage
+            if (WorkingTicks >= 100 && finishingTask == null)
             {
-                logger.Debug("Stage 1 - Probe assembly section - Next");
+                stage1.Write("Probe assembly done");
+                stage1.Write("Heading to probe launch facility");
 
-                Stage1ViewModel.Next();
+                finishingTask =
+                    Task.Delay(TimeSpan.FromSeconds(2))
+                        .ContinueWith(task => stage1.Next());
             }
         }
     }

@@ -16,6 +16,10 @@
             <DataTemplate DataType="{x:Type st1:ProbeAssemblyViewModel}">
                 <st1:ProbeAssemblyView/>
             </DataTemplate>
+
+            <DataTemplate DataType="{x:Type st1:ProbeLaunchViewModel}">
+                <st1:ProbeLaunchView/>
+            </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

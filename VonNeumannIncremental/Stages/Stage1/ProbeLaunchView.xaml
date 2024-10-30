@@ -7,14 +7,10 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <StackPanel>
-
-        <!--<TextBlock Text="Probe parts"/>
-        <ProgressBar Height="5" Margin="0,10,0,0" Maximum="{Binding PartsToComplete}" Value="{Binding Parts}"/>
-        <Button Content="Print probe part" 
-            HorizontalAlignment="Center" 
-            Margin="0,20,0,0"
-            Command="{Binding PrintPartCommand}"/>
-        <TextBlock Text="Working" Margin="0,20,0,0"/>
-        <ProgressBar Height="5" Margin="0,10,0,0" Maximum="{Binding TicksToComplete}" Value="{Binding WorkingTicks}"/>-->
+        <ProgressBar IsIndeterminate="{Binding IsWorking}" Height="5"/>
+        <Button Content="Launch probe" 
+                HorizontalAlignment="Center" 
+                Margin="0,20,0,0"
+                Command="{Binding LaunchProbeCommand}"/>
     </StackPanel>
 </UserControl>

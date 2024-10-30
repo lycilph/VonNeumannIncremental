@@ -6,18 +6,16 @@ using VonNeumannIncremental.Stages.Common;
 
 namespace VonNeumannIncremental.Stages.Stage1;
 
-public partial class PartsConstructionViewModel(Game game, Stage1ViewModel vm) : ViewModelBase(game)
+public partial class PartsConstructionViewModel(Game game, Stage1ViewModel stage1) : ViewModelBase(game)
 {
     private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-
-    protected Stage1ViewModel Stage1ViewModel { get; private set; } = vm;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(PrintPartCommand))]
     private int parts = 0;
 
     [ObservableProperty]
-    private int partsToComplete = 10;
+    private int partsToComplete = 2;
 
     [ObservableProperty]
     private int workingTicks = 0;
@@ -29,10 +27,14 @@ public partial class PartsConstructionViewModel(Game game, Stage1ViewModel vm) :
     [NotifyCanExecuteChangedFor(nameof(PrintPartCommand))]
     private bool isWorking = false;
 
+    private Task? finishingTask = null;
+
     public override void Start()
     {
         logger.Debug("Stage 1 - Parts construction section - started");
+
         Game.Timer.Tick += GameTimerTick;
+        finishingTask = null;
     }
 
     public override void Stop()
@@ -55,11 +57,14 @@ public partial class PartsConstructionViewModel(Game game, Stage1ViewModel vm) :
             }
         }
 
-        if (Parts >= PartsToComplete)
+        if (Parts >= PartsToComplete && finishingTask == null)
         {
-            logger.Debug("Stage 1 - Parts construction section - Next");
+            stage1.Write("Probe parts construction done");
+            stage1.Write("Heading over to probe assembly");
 
-            Stage1ViewModel.Next();
+            finishingTask = 
+                Task.Delay(TimeSpan.FromSeconds(2))
+                    .ContinueWith(task => stage1.Next());
         }
     }
 
@@ -67,7 +72,7 @@ public partial class PartsConstructionViewModel(Game game, Stage1ViewModel vm) :
     private void PrintPart()
     {
         IsWorking = true;
-        vm.Messages.Add($"Printing Part... {Parts+1}");
+        stage1.Write($"Printing Part... {Parts+1}");
     }
 
     private bool CanPrintPart() => !IsWorking && Parts < PartsToComplete;

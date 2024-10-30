@@ -6,9 +6,11 @@ using VonNeumannIncremental.Stages.Common;
 
 namespace VonNeumannIncremental.Stages.Stage1;
 
-public partial class Stage1ViewModel(Game game) : ViewModelBase(game)
+public partial class Stage1ViewModel : ViewModelBase
 {
     private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+
+    private Dictionary<Type, IViewModel> nextStepMapping;
 
     [ObservableProperty]
     private IViewModel? currentSection;
@@ -16,13 +18,20 @@ public partial class Stage1ViewModel(Game game) : ViewModelBase(game)
     [ObservableProperty]
     private ObservableCollection<string> messages = [];
 
+    public Stage1ViewModel(Game game) : base(game)
+    {
+        nextStepMapping = new Dictionary<Type, IViewModel>()
+        {
+            {typeof(PartsConstructionViewModel), new ProbeAssemblyViewModel(Game, this)},
+            {typeof(ProbeAssemblyViewModel), new ProbeLaunchViewModel(Game, this)}
+        };
+    }
+
     public void Next()
     {
-        if (CurrentSection is PartsConstructionViewModel)
+        if (CurrentSection is not null && nextStepMapping.TryGetValue(CurrentSection.GetType(), out IViewModel? section))
         {
-            var section = new ProbeAssemblyViewModel(Game, this);
             section.Reset();
-
             CurrentSection = section;
         }
         else
@@ -40,14 +49,14 @@ public partial class Stage1ViewModel(Game game) : ViewModelBase(game)
     public override void Start()
     {
         logger.Debug("Stage 1 - started");
-
-        Messages.Add("Stage 1 - started");
     }
 
     public override void Stop()
     {
         logger.Debug("Stage 1 - stopped");
     }
+
+    public void Write(string message) => Messages.Add(message);
 
     partial void OnCurrentSectionChanging(IViewModel? oldValue, IViewModel? newValue)
     {

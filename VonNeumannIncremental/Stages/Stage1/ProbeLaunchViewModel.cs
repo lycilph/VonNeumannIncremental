@@ -1,39 +1,37 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using NLog;
-using System.Collections.ObjectModel;
 using VonNeumannIncremental.Core;
 using VonNeumannIncremental.Stages.Common;
 
 namespace VonNeumannIncremental.Stages.Stage1;
 
-public partial class ProbeLaunchViewModel(Game game, Stage1ViewModel vm) : ViewModelBase(game)
+public partial class ProbeLaunchViewModel(Game game, Stage1ViewModel stage1) : ViewModelBase(game)
 {
     private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
-    protected Stage1ViewModel Stage1ViewModel { get; private set; } = vm;
-    
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(LaunchProbeCommand))]
     private bool isWorking = false;
 
-    [ObservableProperty]
-    private ObservableCollection<string> messages = [];
-
     private List<string> text =
-        ["Fuelling", ".", ".", ".",
-         "Moving probe to pad", ".", ".", ".",
+        ["Fuelling",
+         "Moving probe to pad",
          "Counting down",
          "10", "9", "8", "7", "6", "5", "4", "3", "2", "1",
          "Launch"];
 
     private int tick = 0;
-    private int tickDelay = 10;
+    private int tickDelay = 2;
+    private int currentMessageIndex = 0;
+    private Task? finishingTask = null;
 
     public override void Start()
     {
         logger.Debug("Stage 1 - Probe launch section - started");
+
         Game.Timer.Tick += GameTimerTick;
+        finishingTask = null;
     }
 
     public override void Stop()
@@ -47,9 +45,20 @@ public partial class ProbeLaunchViewModel(Game game, Stage1ViewModel vm) : ViewM
         if (IsWorking) 
         {
             tick++;
-            if (tick >= 10)
+
+            if (tick >= tickDelay && currentMessageIndex < text.Count)
             {
                 tick = 0;
+                stage1.Write(text[currentMessageIndex++]);
+            }
+
+            if (currentMessageIndex == text.Count && finishingTask == null)
+            {
+                stage1.Write("Probe Launched");
+
+                finishingTask =
+                    Task.Delay(TimeSpan.FromSeconds(2))
+                        .ContinueWith(task => stage1.Next());
             }
         }
     }
